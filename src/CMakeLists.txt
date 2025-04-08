@@ -1,0 +1,10 @@
+add_subdirectory(utils)
+# add_subdirectory(frontend)
+# add_subdirectory(backend)
+# add_subdirectory(runtime)
+
+add_executable(derkscheme)
+target_include_directories(derkscheme PUBLIC ${DERK_SCHEME_INC_DIR})
+target_link_directories(derkscheme PRIVATE ${DERK_SCHEME_LIB_DIR})
+target_sources(derkscheme PRIVATE derkscheme_main.cpp)
+target_link_libraries(derkscheme PRIVATE ds_utils)
