@@ -1,4 +1,5 @@
 #include "frontend/lexer.hpp"
+#include "frontend/token.hpp"
 #include <initializer_list>
 
 namespace DerkScheme::Frontend {
@@ -17,6 +18,19 @@ namespace DerkScheme::Frontend {
             if (role == WordRole::special_form) {
                 m_special_forms.insert(text);
             }
+        }
+    }
+
+    bool Lexer::atEnd() const noexcept {
+        return m_pos >= m_end;
+    }
+
+    void Lexer::update_source_location(char c) noexcept {
+        if (c == '\n') {
+            ++m_line;
+            m_column = 0;
+        } else {
+            ++m_column;
         }
     }
     
@@ -61,12 +75,9 @@ namespace DerkScheme::Frontend {
         return lexSingle(TokenTag::unknown);
     }
 
-    bool Lexer::atEnd() const noexcept {
-        return m_pos >= m_end;
-    }
-
     Token Lexer::lexSingle(TokenTag tag) noexcept {
         const auto token_begin = m_pos;
+        const auto token_col_1 = m_column;
 
         update_source_location(m_srcv[m_pos]);
         ++m_pos;
@@ -76,17 +87,192 @@ namespace DerkScheme::Frontend {
             .begin = token_begin,
             .length = 1,
             .line = m_line,
-            .column = m_column
+            .column = token_col_1
         };
     }
 
-    // Token Lexer::lexSpacing() noexcept; // todo
+    Token Lexer::lexSpacing() noexcept {
+        auto token_begin = m_pos;
+        auto token_length = 0;
+        const auto token_line_1 = m_line;
+        const auto token_col_1 = m_column;
 
-    // Token Lexer::lexWord() noexcept;
+        while (not atEnd()) {
+            const auto temp = m_srcv[m_pos];
 
-    // Token Lexer::lexBoolean() noexcept;
+            if (not LexicalMatchers::match_spacing(temp)) {
+                break;
+            }
 
-    // Token Lexer::lexNumber() noexcept;
+            update_source_location(temp);
 
-    // Token Lexer::lexString() noexcept;
+            ++token_length;
+            ++m_pos;
+        }
+
+        return {
+            .tag = TokenTag::spacing,
+            .begin = token_begin,
+            .length = token_length,
+            .line = token_line_1,
+            .column = token_col_1
+        };
+    }
+
+    Token Lexer::lexWord() noexcept {
+        auto token_begin = m_pos;
+        auto token_length = 0;
+        const auto token_line_1 = m_line;
+        const auto token_col_1 = m_column;
+
+        while (not atEnd()) {
+            const auto temp = m_srcv[m_pos];
+
+            if (not LexicalMatchers::match_alphabetic(temp) and not LexicalMatchers::match_digit(temp) and not LexicalMatchers::match_op_symbol(temp)) {
+                break;
+            }
+
+            update_source_location(temp);
+            ++token_length;
+            ++m_pos;
+        }
+
+        auto lexeme = m_srcv.substr(token_begin, token_length);
+
+        if (m_special_forms.contains(lexeme)) {
+            return {
+                .tag = TokenTag::special_name,
+                .begin = token_begin,
+                .length = token_length,
+                .line = token_line_1,
+                .column = token_col_1
+            };
+        }
+
+        return {
+            .tag = TokenTag::identifier_name,
+            .begin = token_begin,
+            .length = token_length,
+            .line = token_line_1,
+            .column = token_col_1
+        };
+    }
+
+    Token Lexer::lexBoolean() noexcept {
+        update_source_location(m_srcv[m_pos]);
+        ++m_pos;
+
+        const auto token_begin = m_pos;
+        bool boolean_kind = false;
+        const auto token_line_1 = m_line;
+        const auto token_col_1 = m_column;
+
+        update_source_location(m_srcv[m_pos]);
+
+        switch (m_srcv[m_pos]) {
+            case 't':
+                boolean_kind = true;
+                break;
+            case 'f':
+                break;
+            default:
+                ++m_pos;
+                return {
+                    .tag = TokenTag::unknown,
+                    .begin = token_begin,
+                    .length = 1,
+                    .line = token_line_1,
+                    .column = token_col_1
+                };
+        }
+
+        ++m_pos;
+
+        return {
+            .tag = (boolean_kind) ? TokenTag::literal_boolean_true : TokenTag::literal_boolean_false,
+            .begin = token_begin,
+            .length = 1,
+            .line = token_line_1,
+            .column = token_col_1
+        };
+    }
+
+    Token Lexer::lexNumber() noexcept {
+        auto token_begin = m_pos;
+        auto token_length = 0;
+        auto dots = 0;
+        const auto token_line_1 = m_line;
+        const auto token_col_1 = m_column;
+
+        while (not atEnd()) {
+            const auto temp = m_srcv[m_pos];
+
+            if (not LexicalMatchers::match_digit(temp) and temp != '.') {
+                break;
+            }
+
+            if (temp == '.') {   
+                ++dots;
+            }
+
+            update_source_location(temp);
+
+            ++token_length;
+            ++m_pos;
+        }
+
+        auto temp_tag = TokenTag::unknown;
+
+        switch (dots) {
+            case 0:
+                temp_tag = TokenTag::literal_number_exact;
+                break;
+            case 1:
+                temp_tag = TokenTag::literal_number_real;
+                break;
+            default:
+                break;
+        }
+
+        return {
+            .tag = temp_tag,
+            .begin = token_begin,
+            .length = token_length,
+            .line = token_line_1,
+            .column = token_col_1
+        };
+    }
+
+    Token Lexer::lexString() noexcept {
+        ++m_pos; // skip leading double quote...
+        update_source_location(m_srcv[m_pos]);
+
+        auto token_begin = m_pos;
+        auto token_length = 0;
+        const auto token_line_1 = m_line;
+        const auto token_col_1 = m_column;
+        bool closed = false;
+
+        while (not atEnd()) {
+            const auto temp = m_srcv[m_pos];
+
+            if (temp == '\"') {
+                ++m_pos;
+                break;
+            }
+
+            update_source_location(temp);
+
+            ++token_length;
+            ++m_pos;
+        }
+
+        return {
+            .tag = (closed) ? TokenTag::literal_string : TokenTag::unknown,
+            .begin = token_begin,
+            .length = token_length,
+            .line = token_line_1,
+            .column = token_col_1
+        };
+    }
 }
