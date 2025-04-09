@@ -1,8 +1,14 @@
 /**
  * @file derkscheme_main.cpp
- * @brief Contains driver code for Scheme interpreter.
- * @author DrkWithT (GitHub)
+ * @author DrkWithT
+ * @brief Contains driver code for my Scheme interpreter.
+ * @version 0.1.0
+ * @date 2025-04-07
+ * 
+ * @copyright Copyright (c) 2025
+ * 
  */
+
 #include <iostream>
 #include <print>
 #include <string_view>

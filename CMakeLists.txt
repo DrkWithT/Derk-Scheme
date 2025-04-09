@@ -13,5 +13,5 @@ else ()
 endif ()
 
 add_subdirectory(${DERK_SCHEME_SRC_DIR})
-# enable_testing()
-# add_subdirectory(tests)
+enable_testing()
+add_subdirectory(tests)
