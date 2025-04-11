@@ -9,7 +9,8 @@ namespace DerkScheme::Frontend {
         {"case", WordRole::special_form},
         {"define", WordRole::special_form},
         {"let", WordRole::special_form},
-        {"do", WordRole::special_form}
+        {"do", WordRole::special_form},
+        {"lambda", WordRole::special_form}
     };
 
     Lexer::Lexer(std::string_view source)
