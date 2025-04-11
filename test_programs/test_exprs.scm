@@ -1,7 +1,7 @@
 (define x 42)
 (define y 24)
-(define (my-average a b)
-    (+ (/ a 2)
-        (/ b 2)))
-(define answer (my-average x y))
+(define avg-pair (
+    (lambda (a b)
+        (/ (+ a b) 2))))
+(define answer (avg-pair x y))
 (display answer)
