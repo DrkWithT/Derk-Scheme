@@ -114,10 +114,10 @@ namespace DerkScheme::Syntax {
     }
 
 
-    LambdaDefine::LambdaDefine(ExprList params, ExprPtr body) noexcept
+    LambdaDefine::LambdaDefine(std::vector<std::string> params, ExprPtr body) noexcept
     : m_params {std::move(params)}, m_body {std::move(body)} {}
 
-    const ExprList& LambdaDefine::params() const noexcept {
+    const std::vector<std::string>& LambdaDefine::params() const noexcept {
         return m_params;
     }
 
@@ -146,14 +146,14 @@ namespace DerkScheme::Syntax {
     }
 
 
-    Cond::Cond(std::forward_list<Case> cases) noexcept
+    Cond::Cond(std::vector<Case> cases) noexcept
     : m_cases {std::move(cases)}, m_count {0} {
         for (auto cases_it = m_cases.cbegin(), cases_end = m_cases.cend(); cases_it != cases_end; cases_it++) {
             ++m_count;
         }
     }
 
-    const std::forward_list<Case>& Cond::cases() const noexcept {
+    const std::vector<Case>& Cond::cases() const noexcept {
         return m_cases;
     }
 

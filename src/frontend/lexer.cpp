@@ -181,7 +181,7 @@ namespace DerkScheme::Frontend {
                 return {
                     .tag = TokenTag::unknown,
                     .begin = token_begin,
-                    .length = 1,
+                    .length = 2,
                     .line = token_line_1,
                     .column = token_col_1
                 };
@@ -192,7 +192,7 @@ namespace DerkScheme::Frontend {
         return {
             .tag = (boolean_kind) ? TokenTag::literal_boolean_true : TokenTag::literal_boolean_false,
             .begin = token_begin,
-            .length = 1,
+            .length = 2,
             .line = token_line_1,
             .column = token_col_1
         };

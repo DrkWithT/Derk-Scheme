@@ -2,6 +2,7 @@
 
 #include <forward_list>
 #include <memory>
+#include <vector>
 #include "frontend/token.hpp"
 #include "semantics/tags.hpp"
 #include "syntax/expr_base.hpp"
@@ -15,7 +16,15 @@ namespace DerkScheme::Syntax {
     /**
      * @brief Provides an alias for a list of any expression.
      */
-    using ExprList = std::forward_list<ExprPtr>;
+    using ExprList = std::vector<ExprPtr>;
+
+    /**
+     * @brief Provides an alias for a list of top-level AST constructs.
+     */
+    struct AST {
+        ExprList items;
+        bool ok;
+    };
 
     class Datum : public Expr {
     public:
@@ -24,12 +33,12 @@ namespace DerkScheme::Syntax {
 
         const Frontend::Token& token() const noexcept;
 
-        [[nodiscard]] Semantics::BasicTypeTag basic_type() const noexcept override = 0;
-        [[nodiscard]] Semantics::ListTag listy_tag() const noexcept override = 0;
-        [[nodiscard]] std::size_t size() const noexcept override = 0;
-        [[nodiscard]] std::string to_string() const override = 0;
+        [[nodiscard]] Semantics::BasicTypeTag basic_type() const noexcept override;
+        [[nodiscard]] Semantics::ListTag listy_tag() const noexcept override;
+        [[nodiscard]] std::size_t size() const noexcept override;
+        [[nodiscard]] std::string to_string() const override;
 
-        void accept_visitor(ExprVisitor<void>&) const override = 0;
+        void accept_visitor(ExprVisitor<void>&) const override;
     private:
         Frontend::Token m_token;
         Semantics::BasicTypeTag m_type;
@@ -42,12 +51,12 @@ namespace DerkScheme::Syntax {
 
         const ExprList& items() const noexcept;
 
-        [[nodiscard]] Semantics::BasicTypeTag basic_type() const noexcept override = 0;
-        [[nodiscard]] Semantics::ListTag listy_tag() const noexcept override = 0;
-        [[nodiscard]] std::size_t size() const noexcept override = 0;
-        [[nodiscard]] std::string to_string() const override = 0;
+        [[nodiscard]] Semantics::BasicTypeTag basic_type() const noexcept override;
+        [[nodiscard]] Semantics::ListTag listy_tag() const noexcept override;
+        [[nodiscard]] std::size_t size() const noexcept override;
+        [[nodiscard]] std::string to_string() const override;
 
-        void accept_visitor(ExprVisitor<void>&) const override = 0;
+        void accept_visitor(ExprVisitor<void>&) const override;
     private:
         ExprList m_items;
         std::size_t m_count;
@@ -61,12 +70,12 @@ namespace DerkScheme::Syntax {
         const std::string& name() const noexcept;
         const ExprPtr& init_expr() const noexcept;
 
-        [[nodiscard]] Semantics::BasicTypeTag basic_type() const noexcept override = 0;
-        [[nodiscard]] Semantics::ListTag listy_tag() const noexcept override = 0;
-        [[nodiscard]] std::size_t size() const noexcept override = 0;
-        [[nodiscard]] std::string to_string() const override = 0;
+        [[nodiscard]] Semantics::BasicTypeTag basic_type() const noexcept override;
+        [[nodiscard]] Semantics::ListTag listy_tag() const noexcept override;
+        [[nodiscard]] std::size_t size() const noexcept override;
+        [[nodiscard]] std::string to_string() const override;
 
-        void accept_visitor(ExprVisitor<void>&) const override = 0;
+        void accept_visitor(ExprVisitor<void>&) const override;
     private:
         std::string m_name;
         ExprPtr m_init_expr;
@@ -75,19 +84,19 @@ namespace DerkScheme::Syntax {
     class LambdaDefine : public Expr {
     public:
         LambdaDefine() = delete;
-        LambdaDefine(ExprList params, ExprPtr body) noexcept;
+        LambdaDefine(std::vector<std::string> params, ExprPtr body) noexcept;
 
-        const ExprList& params() const noexcept;
+        const std::vector<std::string>& params() const noexcept;
         const ExprPtr& body() const noexcept;
 
-        [[nodiscard]] Semantics::BasicTypeTag basic_type() const noexcept override = 0;
-        [[nodiscard]] Semantics::ListTag listy_tag() const noexcept override = 0;
-        [[nodiscard]] std::size_t size() const noexcept override = 0;
-        [[nodiscard]] std::string to_string() const override = 0;
+        [[nodiscard]] Semantics::BasicTypeTag basic_type() const noexcept override;
+        [[nodiscard]] Semantics::ListTag listy_tag() const noexcept override;
+        [[nodiscard]] std::size_t size() const noexcept override;
+        [[nodiscard]] std::string to_string() const override;
 
-        void accept_visitor(ExprVisitor<void>&) const override = 0;
+        void accept_visitor(ExprVisitor<void>&) const override;
     private:
-        ExprList m_params;
+        std::vector<std::string> m_params;
         ExprPtr m_body;
     };
 
@@ -99,18 +108,18 @@ namespace DerkScheme::Syntax {
     class Cond : public Expr {
     public:
         Cond() = delete;
-        Cond(std::forward_list<Case> cases) noexcept;
+        Cond(std::vector<Case> cases) noexcept;
 
-        const std::forward_list<Case>& cases() const noexcept;
+        const std::vector<Case>& cases() const noexcept;
 
-        [[nodiscard]] Semantics::BasicTypeTag basic_type() const noexcept override = 0;
-        [[nodiscard]] Semantics::ListTag listy_tag() const noexcept override = 0;
-        [[nodiscard]] std::size_t size() const noexcept override = 0;
-        [[nodiscard]] std::string to_string() const override = 0;
+        [[nodiscard]] Semantics::BasicTypeTag basic_type() const noexcept override;
+        [[nodiscard]] Semantics::ListTag listy_tag() const noexcept override;
+        [[nodiscard]] std::size_t size() const noexcept override;
+        [[nodiscard]] std::string to_string() const override;
 
-        void accept_visitor(ExprVisitor<void>&) const override = 0;
+        void accept_visitor(ExprVisitor<void>&) const override;
     private:
-        std::forward_list<Case> m_cases;
+        std::vector<Case> m_cases;
         int m_count;
     };
 }

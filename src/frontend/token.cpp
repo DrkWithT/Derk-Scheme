@@ -11,6 +11,6 @@ namespace DerkScheme::Frontend {
     }
 
     std::string create_token_info_str(const Token& token, std::string_view source) noexcept {
-        return std::format("Token \"{}\"; [line {}, col {}]\n", create_token_sv(token, source), token.line, token.column);
+        return std::format("{}", create_token_sv(token, source));
     }
 }
