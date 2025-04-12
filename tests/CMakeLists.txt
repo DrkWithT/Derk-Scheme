@@ -5,4 +5,9 @@ target_sources(test_lexer PRIVATE test_lexer.cpp)
 add_test(NAME test_lexer COMMAND "$<TARGET_FILE:test_lexer>")
 target_link_libraries(test_lexer PRIVATE ds_frontend)
 
-# todo
+add_executable(test_parser)
+target_link_directories(test_parser PRIVATE ${DERK_SCHEME_LIB_DIR})
+target_include_directories(test_parser PUBLIC ${DERK_SCHEME_INC_DIR})
+target_sources(test_parser PRIVATE test_parser.cpp)
+add_test(NAME test_parser COMMAND "$<TARGET_FILE:test_parser>")
+target_link_libraries(test_parser PRIVATE ds_frontend PRIVATE ds_syntax)
