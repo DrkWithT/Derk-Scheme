@@ -8,7 +8,7 @@ namespace DerkScheme::Frontend {
         {"cond", WordRole::special_form},
         {"case", WordRole::special_form},
         {"define", WordRole::special_form},
-        {"let", WordRole::special_form},
+        {"let!", WordRole::special_form},
         {"do", WordRole::special_form},
         {"lambda", WordRole::special_form}
     };
