@@ -6,7 +6,7 @@
 <variable> ::= "(" "define" / "let!" <identifier> <nestable> ")"
 <lambda> ::= "(" "lambda" <params> <nestable> ")"
 <params> ::= "(" (<identifier>)* ")"
-<nestable> ::= <do> / <cond> / <compute>
+<nestable> ::= <lambda> / <do> / <cond> / <compute>
 <do> ::= "(" "do" (<top>)+ ")"
 <cond> ::= "(" "cond" (<case>)+ ")"
 <case> ::= "(" <compute> <compute> ")"
