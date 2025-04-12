@@ -144,4 +144,36 @@ namespace DerkScheme::Syntax {
     void LambdaDefine::accept_visitor(ExprVisitor<void>& visitor) const {
         return visitor.visit_lambda_define(*this);
     }
+
+
+    Cond::Cond(std::forward_list<Case> cases) noexcept
+    : m_cases {std::move(cases)}, m_count {0} {
+        for (auto cases_it = m_cases.cbegin(), cases_end = m_cases.cend(); cases_it != cases_end; cases_it++) {
+            ++m_count;
+        }
+    }
+
+    const std::forward_list<Case>& Cond::cases() const noexcept {
+        return m_cases;
+    }
+
+    Semantics::BasicTypeTag Cond::basic_type() const noexcept {
+        return Semantics::BasicTypeTag::unknown;
+    }
+
+    Semantics::ListTag Cond::listy_tag() const noexcept {
+        return Semantics::ListTag::block_do;
+    }
+
+    std::size_t Cond::size() const noexcept {
+        return m_count;
+    }
+
+    std::string Cond::to_string() const {
+        return std::format("Cond(count = {}, cases = ...)", m_count);
+    }
+
+    void Cond::accept_visitor(ExprVisitor<void>& visitor) const {
+        visitor.visit_cond(*this);
+    }
 }

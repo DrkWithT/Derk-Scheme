@@ -51,11 +51,10 @@ namespace DerkScheme::Syntax {
     private:
         ExprList m_items;
         std::size_t m_count;
-
     };
 
     class VariableDefine : public Expr {
-    public:        
+    public:
         VariableDefine() = delete;
         VariableDefine(std::string name, ExprPtr init_expr) noexcept;
 
@@ -92,4 +91,26 @@ namespace DerkScheme::Syntax {
         ExprPtr m_body;
     };
 
+    struct Case {
+        ExprPtr test;
+        ExprPtr result;
+    };
+
+    class Cond : public Expr {
+    public:
+        Cond() = delete;
+        Cond(std::forward_list<Case> cases) noexcept;
+
+        const std::forward_list<Case>& cases() const noexcept;
+
+        [[nodiscard]] Semantics::BasicTypeTag basic_type() const noexcept override = 0;
+        [[nodiscard]] Semantics::ListTag listy_tag() const noexcept override = 0;
+        [[nodiscard]] std::size_t size() const noexcept override = 0;
+        [[nodiscard]] std::string to_string() const override = 0;
+
+        void accept_visitor(ExprVisitor<void>&) const override = 0;
+    private:
+        std::forward_list<Case> m_cases;
+        int m_count;
+    };
 }

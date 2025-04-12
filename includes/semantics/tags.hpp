@@ -14,6 +14,7 @@ namespace DerkScheme::Semantics {
     enum class ListTag {
         def_variable,
         def_lambda,
+        block_do,
         expr_datum,
         expr_multiple
     };
