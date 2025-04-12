@@ -19,10 +19,10 @@ using namespace DerkScheme;
 
 constexpr std::string_view test_1_source_copy = "(define x 42)\n"
 "(define y 24)\n"
-"(define (my-average a b)\n"
-    "(+ (/ a 2)\n"
-        "(/ b 2)))\n"
-"(define answer (my-average x y))\n"
+"(define avg-pair\n"
+    "\t(lambda (a b)\n"
+        "\t\t(/ (+ a b) 2)))\n"
+"(define answer (avg-pair x y))\n"
 "(display answer)\n";
 
 [[nodiscard]] bool do_basic_lexer_test(std::string_view sample) noexcept {

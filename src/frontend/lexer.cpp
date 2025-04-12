@@ -29,7 +29,7 @@ namespace DerkScheme::Frontend {
     void Lexer::update_source_location(char c) noexcept {
         if (c == '\n') {
             ++m_line;
-            m_column = 0;
+            m_column = 1;
         } else {
             ++m_column;
         }

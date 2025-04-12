@@ -69,6 +69,8 @@ namespace DerkScheme::Syntax {
             sout << p->to_string() << ", ";
         }
 
+        sout << ']';
+
         return sout.str();
     }
 

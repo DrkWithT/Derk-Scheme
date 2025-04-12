@@ -15,6 +15,7 @@ namespace DerkScheme::Frontend {
     };
 
     enum class ParseErrorGroup {
+        missing_token,
         invalid_token,
         unexpected_token
     };
@@ -31,13 +32,19 @@ namespace DerkScheme::Frontend {
         Parser() = delete;
         Parser(std::string_view source) noexcept;
 
+        [[nodiscard]] Syntax::AST parse_program();
+
     private:
         template <ParseErrorGroup ParseErr>
         void report_parse_error(const Token& culprit, std::string_view message) {
-            if constexpr (ParseErr == ParseErrorGroup::invalid_token) {
-                std::print(std::cerr, "Invalid token [ln. {}, col. {}]:\nLexeme \"{}\" is unknown in Scheme!\n", culprit.line, culprit.column, create_token_sv(culprit, m_source_2));
+            m_errored = true;
+
+            if constexpr (ParseErr == ParseErrorGroup::missing_token) {
+                std::print(std::cerr, "Missing a different token at [ln. {}, col. {}]:\nLexeme \"{}\" found instead.\nNote: {}\n", culprit.line, culprit.column, create_token_sv(culprit, m_source_2), message);
+            } else if constexpr (ParseErr == ParseErrorGroup::invalid_token) {
+                std::print(std::cerr, "Invalid token [ln. {}, col. {}]:\nLexeme \"{}\"\nNote: {}\n", culprit.line, culprit.column, create_token_sv(culprit, m_source_2), message);
             } else {
-                std::print(std::cerr, "Unexpected token [ln. {}, col. {}]:\nLexeme \"{}\"\nNote: {}", culprit.line, culprit.column, create_token_sv(culprit, m_source_2), message);
+                std::print(std::cerr, "Unexpected token [ln. {}, col. {}]:\nLexeme \"{}\"\nNote: {}\n", culprit.line, culprit.column, create_token_sv(culprit, m_source_2), message);
             }
         }
 
@@ -45,7 +52,11 @@ namespace DerkScheme::Frontend {
         const Token& current() const noexcept;
         [[nodiscard]] bool atEOF() const noexcept;
 
-        template <ParserPeekOpt PeekOpt, typename Tag, typename... TagRest> requires (std::is_same_v<Tag, TokenTag>)
+        [[nodiscard]] constexpr bool match() const noexcept {
+            return true;
+        }
+
+        template <ParserPeekOpt PeekOpt, typename Tag, typename... TagRest> requires (std::is_same_v<std::remove_reference_t<Tag>, TokenTag>)
         [[nodiscard]] bool match(Tag&& tag, TagRest&&... rest) const noexcept {
             if constexpr (PeekOpt == ParserPeekOpt::current) {
                 const auto curr_tag = m_current.tag;
@@ -59,8 +70,31 @@ namespace DerkScheme::Frontend {
         }
 
         [[nodiscard]] Token advance() noexcept;
+        void recover_parse() noexcept;
+        void consume() noexcept;
 
-        [[nodiscard]] Syntax::ExprPtr parse_program();
+        template <ParserPeekOpt PeekOpt, typename Tag, typename... TagRest> requires (std::is_same_v<std::remove_reference_t<Tag>, TokenTag>)
+        [[maybe_unused]] bool consume(Tag&& tag, TagRest&&... rest) noexcept {
+            if (atEOF()) {
+                return true;
+            }
+
+            if constexpr (PeekOpt == ParserPeekOpt::current) {
+                if (match<ParserPeekOpt::current>(tag, rest...)) {
+                    consume();
+                    return true;
+                }
+            } else if constexpr (PeekOpt == ParserPeekOpt::previous) {
+                if (match<ParserPeekOpt::previous>(tag, rest...)) {
+                    consume();
+                    return true;
+                }
+            }
+
+            recover_parse();
+            return false;
+        }
+
         [[nodiscard]] Syntax::ExprPtr parse_top();
         [[nodiscard]] Syntax::ExprPtr parse_variable();
         /// NOTE: params parsing logic inside!
