@@ -3,6 +3,7 @@
 namespace DerkScheme::Semantics {
     enum class BasicTypeTag {
         unknown,
+        null,
         boolean,
         number_exact,
         number_real,
